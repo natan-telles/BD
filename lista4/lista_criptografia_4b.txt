@@ -1,0 +1,432 @@
+1)
+
+import hashlib
+senha = input("Digite senha para ser criptografada: ")
+hash_obj = hashlib.sha256(senha.encode())
+hash_obj.hexdigest()
+hash_senha = hash_obj.hexdigest()
+print("Hash da senha: "+ hash_senha)
+
+2)
+import hashlib
+
+
+string = input("Digite string para ser criptografada: ")
+string2 = input("Digite string2 para ser criptografada: ")
+hash_obj = hashlib.sha256(string.encode())
+hash_obj2 = hashlib.sha256(string2.encode())
+hash_obj.hexdigest()
+hash_obj2.hexdigest()
+hash_string = hash_obj.hexdigest()
+hash_string2 = hash_obj2.hexdigest()
+#print("Hash da string: "+ hash_string)
+#print("Hash da string2: "+ hash_string2)
+
+
+if hash_string == hash_string2:
+    print("Hash compativel!")
+else:
+    print("Hash incompativel!")
+
+3)
+import hashlib
+from pymongo import MongoClient
+
+
+string = input("Digite string para ser criptografada: ")
+hash_obj = hashlib.sha256(string.encode())
+hash_obj.hexdigest()
+hash_string = hash_obj.hexdigest()
+
+
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['dados']
+tabela.insert_one({"string" : hash_string})
+
+4)
+import hashlib
+from pymongo import MongoClient
+
+
+string = input("Digite string para ser validada: ")
+hash_obj = hashlib.sha256(string.encode())
+hash_obj.hexdigest()
+hash_string = hash_obj.hexdigest()
+
+
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['dados']
+if tabela.find_one({'string' : hash_string}):
+    print("String validada com sucesso!")
+else:
+    print("String invalida!")
+
+5)
+import hashlib
+
+
+senha = input("Digite senha para ser criptografada: ")
+hash_obj = hashlib.md5(senha.encode())
+hash_obj.hexdigest()
+hash_senha = hash_obj.hexdigest()
+print("Hash MD5 da senha: "+ hash_senha)
+
+6)
+import hashlib
+
+
+senha = input("Digite senha para ser criptografada: ")
+
+
+#SHA-256
+hash = hashlib.sha256(senha.encode())
+hash_SHA256 = hash.hexdigest()
+print("Hash SHA-256 da senha: "+ hash_SHA256)
+
+
+#MD5
+hash = hashlib.md5(senha.encode())
+hash_MD5 = hash.hexdigest()
+print("Hash MD5 da senha: "+ hash_MD5)
+
+
+#MD5
+hash = hashlib.sha1(senha.encode())
+hash_SHA1 = hash.hexdigest()
+print("Hash MD5 da senha: "+ hash_SHA1)
+
+7)
+from cryptography.fernet import Fernet
+# Gerando uma chave secreta
+#chave = Fernet.generate_key()
+chave = 'DgVOMDwzUQH-yVfp1M8XiOBntTG767Xt8Fp-_BpCj78='
+fernet = Fernet(chave)
+
+
+#criptografando dados
+mensagem = input("Digite mensagem para ser criptografada: ")
+msg_criptografada = fernet.encrypt(mensagem.encode())
+print("Mensagem criptografada com Fernet: " + msg_criptografada.decode())
+
+
+
+8)
+from cryptography.fernet import Fernet
+# Gerando uma chave secreta
+chave = 'DgVOMDwzUQH-yVfp1M8XiOBntTG767Xt8Fp-_BpCj78='
+fernet = Fernet(chave)
+
+
+#criptografando dados
+mensagem = input("Digite mensagem para ser criptografada: ")
+msg_criptografada = fernet.encrypt(mensagem.encode())
+print("Mensagem criptografada com Fernet: " + msg_criptografada.decode())
+
+
+#descriptografar dados
+msg_descriptografada = fernet.decrypt(msg_criptografada).decode()
+print("Mensagem descriptografada: " + msg_descriptografada)
+
+9)
+from pymongo import MongoClient
+from cryptography.fernet import Fernet
+# Gerando uma chave secreta
+chave = 'DgVOMDwzUQH-yVfp1M8XiOBntTG767Xt8Fp-_BpCj78='
+fernet = Fernet(chave)
+
+
+#criptografando dados
+mensagem = input("Digite mensagem para ser criptografada com Fernet: ")
+msg_criptografada = fernet.encrypt(mensagem.encode())
+print(msg_criptografada)
+
+
+#descriptografar dados
+msg_descriptografada = fernet.decrypt(msg_criptografada).decode()
+#print("Mensagem descriptografada: " + msg_descriptografada)
+
+
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['dados']
+if tabela.insert_one({"Fernet" : msg_criptografada}):
+    print("inserido com sucesso!")
+else:
+    print("erro ao inserir!")
+
+10)
+from pymongo import MongoClient
+from cryptography.fernet import Fernet
+from bson.binary import Binary
+
+
+# A mesma chave Fernet usada para criptografar os dados
+chave = b'DgVOMDwzUQH-yVfp1M8XiOBntTG767Xt8Fp-_BpCj78='
+fernet = Fernet(chave)
+
+
+# Conectar ao MongoDB
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['dados']
+
+
+# Procurar a mensagem criptografada no MongoDB
+doc = tabela.find_one({"Fernet": {'$exists': True}})
+#print(doc)
+
+
+try:
+    if 'Fernet' in doc:
+        msg_criptografada = doc['Fernet']  
+        msg_descriptografada = fernet.decrypt(msg_criptografada).decode()
+        print("Mensagem descriptografada: " + msg_descriptografada)
+    else:
+        print("Nenhuma mensagem criptografada encontrada no MongoDB.")
+except Exception as erro:
+    print(f"Erro ao descriptografar: {erro}")
+
+
+
+11)
+from cryptography.fernet import Fernet
+
+
+chave = Fernet.generate_key()
+fernet = Fernet(chave)
+with open("lista4b/chave_fernet.txt", "wb") as arquivo_chave:
+    arquivo_chave.write(chave)
+
+
+print(f"Chave Fernet gerada e salva no arquivo 'chave_fernet.key': {chave.decode()}")
+
+12)
+from cryptography.fernet import Fernet
+
+
+with open("lista4b/chave_fernet.txt", "rb") as arquivo_chave:
+    chave = arquivo_chave.read()
+
+
+fernet = Fernet(chave)
+mensagem = input("Digite a mensagem para ser criptografada com Fernet: ")
+msg_criptografada = fernet.encrypt(mensagem.encode())
+print("Mensagem criptografada: ", msg_criptografada.decode())
+
+
+
+13)
+from cryptography.fernet import Fernet
+from pymongo import MongoClient
+
+
+chave = Fernet.generate_key()
+#print(chave)
+
+
+
+
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['dados']
+if tabela.insert_one({'Chave Fernet' : chave}):
+    print("chave inserida no banco com sucesso!")
+else:
+    print("erro ao cadastrar chave!")
+
+
+
+
+
+14)
+from pymongo import MongoClient
+from cryptography.fernet import Fernet
+conexao = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+banco = conexao['lista4']
+tabela = banco['dados']
+
+
+doc = tabela.find_one({'Chave Fernet' : {'$exists': True}})
+if doc:
+    chave = doc['Chave Fernet']
+    fernet = Fernet(chave)
+
+
+    msg = input("digite mensagem: ")
+    msg_criptografada = fernet.encrypt(msg.encode())
+   
+    msg_descriptografada = fernet.decrypt(msg_criptografada.decode())
+    print("Mensagem decodificada: " + msg_descriptografada.decode())
+
+
+
+15)
+from cryptography.fernet import Fernet
+
+
+with open("lista4b/chave_fernet.txt", "rb") as arquivo_chave:
+    chave = arquivo_chave.read()
+
+
+fernet = Fernet(chave)
+
+
+caminho_arquivo = input("Digite o caminho do arquivo de texto a ser criptografado: ")
+
+
+with open(caminho_arquivo, "rb") as arquivo:
+    conteudo = arquivo.read()
+
+
+conteudo_criptografado = fernet.encrypt(conteudo)
+
+
+caminho_arquivo_criptografado = caminho_arquivo + ".enc"
+with open(caminho_arquivo_criptografado, "wb") as arquivo_criptografado:
+    arquivo_criptografado.write(conteudo_criptografado)
+
+
+print(f"Arquivo criptografado e salvo como: {caminho_arquivo_criptografado}")
+
+
+
+16)
+import hashlib
+
+
+senha = input("Digite senha para ser criptografada: ")
+
+
+#SHA-256
+hash = hashlib.sha256(senha.encode())
+hash_SHA256 = hash.hexdigest()
+tamanho_hash_SHA256 = len(hash_SHA256)
+print(f"Tamanho do Hash SHA-256 da senha: {tamanho_hash_SHA256}")
+
+
+#MD5
+hash = hashlib.md5(senha.encode())
+hash_MD5 = hash.hexdigest()
+print(f"Tamanho do Hash MD5 da senha: {len(hash_MD5)}")
+
+
+#MD5
+hash = hashlib.sha1(senha.encode())
+hash_SHA1 = hash.hexdigest()
+print(f"Tamanho do Hash SHA1 da senha: {len(hash_SHA1)}")
+
+17)
+import hashlib
+
+
+senha = input("Digite a senha para ser criptografada: ")
+hash_obj = hashlib.sha256(senha.encode())
+hash_senha = hash_obj.hexdigest()
+print("Hash da senha em hexadecimal: " + hash_senha)
+
+
+
+18)
+import hashlib
+from pymongo import MongoClient
+
+
+def gerar_hash(senha):
+    return hashlib.sha256(senha.encode()).hexdigest()
+
+
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['usuarios']
+
+
+senha = input("Digite a senha para ser armazenada: ")
+hash_senha = gerar_hash(senha)
+
+
+tabela.insert_one({"hash_senha": hash_senha})
+print("Senha armazenada com sucesso!")
+
+
+senha_validacao = input("Digite a senha para validar: ")
+hash_validacao = gerar_hash(senha_validacao)
+
+
+usuario = tabela.find_one({"hash_senha": hash_senha})
+
+
+if usuario:
+    if hash_validacao == hash_senha:
+        print("Senha válida!")
+    else:
+        print("Senha inválida!")
+else:
+    print("Senha não encontrada!")
+
+
+
+19)
+from cryptography.fernet import Fernet
+from pymongo import MongoClient
+
+
+chave = Fernet.generate_key()
+fernet = Fernet(chave)
+
+
+cliente = MongoClient('mongodb+srv://natan:123@cluster0.x640mwk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = cliente['lista4']
+tabela = db['mensagens']
+
+
+print("Digite suas mensagens para criptografá-las. Digite 'sair' para encerrar.")
+
+
+while True:
+    mensagem = input("Digite a mensagem: ")
+    if mensagem.lower() == 'sair':
+        break
+    msg_criptografada = fernet.encrypt(mensagem.encode())
+    tabela.insert_one({"mensagem_criptografada": msg_criptografada})
+
+
+print("Todas as mensagens foram criptografadas e armazenadas com sucesso!")
+
+
+
+20)
+import hashlib
+
+
+def gerar_hash(arquivo):
+    """Gera o hash SHA-256 de um arquivo."""
+    hash_obj = hashlib.sha256()
+    with open(arquivo, "rb") as f:
+        for byte_chunk in iter(lambda: f.read(4096), b""):
+            hash_obj.update(byte_chunk)
+    return hash_obj.hexdigest()
+
+
+caminho_arquivo = input("Digite o caminho do arquivo para verificar a integridade: ")
+
+
+hash_original = gerar_hash(caminho_arquivo)
+print("Hash original: " + hash_original)
+
+
+input("Faça uma alteração no arquivo e pressione Enter para continuar...")
+
+
+hash_atual = gerar_hash(caminho_arquivo)
+print("Hash atual: " + hash_atual)
+
+
+if hash_original == hash_atual:
+    print("O arquivo não foi alterado.")
+else:
+    print("O arquivo foi alterado.")
+
+
+
